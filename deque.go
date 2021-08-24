@@ -44,7 +44,7 @@ func (d *Deque[T]) Cap() int {
 func (d *Deque[T]) PushHead(t T) {
 	d.Grow(1)
 	d.len++
-	d.head -= 1
+	d.head--
 	if d.head < 0 {
 		d.head = d.Cap() - 1
 	}
@@ -73,10 +73,21 @@ func (d *Deque[T]) Head() (t T, ok bool) {
 }
 
 func (d *Deque[T]) tail() int {
+	return d.at(d.len - 1)
+}
+
+func (d *Deque[T]) at(n int) int {
 	if d.len < 1 {
 		return -1
 	}
-	return (d.head + d.len - 1) % d.Cap()
+	return (d.head + n) % d.Cap()
+}
+
+func (d *Deque[T]) At(n int) (t T, ok bool) {
+	if n < 0 || n > d.len-1 {
+		return
+	}
+	return d.backing[d.at(n)], true
 }
 
 func (d *Deque[T]) Tail() (t T, ok bool) {
