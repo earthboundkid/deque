@@ -1,5 +1,10 @@
 package deque
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Deque[T any] struct {
 	len, head int
 	backing   []T
@@ -52,8 +57,9 @@ func (d *Deque[T]) PushHead(t T) {
 }
 
 func (d *Deque[T]) copy(dst []T) {
-	n := copy(dst, d.backing[d.head:])
-	copy(dst[n:], d.backing[:d.head])
+	front, back := d.frontback()
+	n := copy(dst, front)
+	copy(dst[n:], back)
 	d.head = 0
 	d.backing = dst
 }
@@ -123,4 +129,38 @@ func (d *Deque[T]) PopTail() (t T, ok bool) {
 	}
 	d.len--
 	return tail, true
+}
+
+func (d *Deque[T]) frontback() (front, back []T) {
+	end := d.head + d.len
+	if end > len(d.backing) {
+		end = len(d.backing)
+	}
+	front = d.backing[d.head:end]
+	rest := d.len - (end - d.head)
+	back = d.backing[:rest]
+	return
+}
+
+func (d *Deque[T]) Items() []T {
+	front, back := d.frontback()
+	return append(append(([]T)(nil), front...), back...)
+}
+
+func (d *Deque[T]) String() string {
+	var buf strings.Builder
+	fmt.Fprintf(&buf, "Deque{ len: %d, cap: %d, items: [", d.Len(), d.Cap())
+	i := 0
+	front, back := d.frontback()
+	for _, slice := range [][]T{front, back} {
+		for _, item := range slice {
+			if i > 0 {
+				buf.WriteString(", ")
+			}
+			fmt.Fprint(&buf, item)
+			i++
+		}
+	}
+	buf.WriteString("]}")
+	return buf.String()
 }
