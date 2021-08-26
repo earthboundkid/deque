@@ -2,10 +2,12 @@ package deque
 
 import (
 	"fmt"
+	"sort"
 )
 
 func ExampleDeque() {
-	d := Of(6, 7, 8, 9)
+	d := Of(9, 8, 7, 6)
+	sort.Sort(Sortable[int]{d})
 	for i := 5; i > 0; i-- {
 		d.PushHead(i)
 	}
