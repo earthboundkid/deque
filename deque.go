@@ -27,7 +27,7 @@ func Of[T any](items ...T) *Deque[T] {
 
 func (d *Deque[T]) Grow(n int) {
 	if n < 0 {
-		panic("argument to Grow must be positive. did you want Shrink?")
+		panic("argument to Grow must be positive")
 	}
 	if d.Cap()-d.len >= n {
 		return
