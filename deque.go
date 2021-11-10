@@ -1,6 +1,7 @@
 package deque
 
 import (
+	"constraints"
 	"fmt"
 	"strings"
 )
@@ -169,11 +170,7 @@ func (d Deque[T]) Swap(i, j int) {
 	d.backing[d.at(i)], d.backing[d.at(j)] = d.backing[d.at(j)], d.backing[d.at(i)]
 }
 
-type ordered interface {
-	int | string // ...
-}
-
-type Sortable[T ordered] struct {
+type Sortable[T constraints.Ordered] struct {
 	*Deque[T]
 }
 
