@@ -1,6 +1,11 @@
 # deque
-Generic deque container
+Deque is deque container using Go 1.18+ generics.
 
+[Wikipedia says](https://en.wikipedia.org/wiki/Double-ended_queue):
+
+> In computer science, a **double-ended queue** (abbreviated to **deque**, pronounced _deck_, like "cheque") is an abstract data type that generalizes a queue, for which elements can be added to or removed from either the front (head) or back (tail).
+
+## Usage
 
 ```
 // Make a new deque of ints
