@@ -165,6 +165,10 @@ func (d *Deque[T]) String() string {
 	return buf.String()
 }
 
+func (d Deque[T]) Swap(i, j int) {
+	d.backing[d.at(i)], d.backing[d.at(j)] = d.backing[d.at(j)], d.backing[d.at(i)]
+}
+
 type ordered interface {
 	int | string // ...
 }
@@ -175,8 +179,4 @@ type Sortable[T ordered] struct {
 
 func (sd Sortable[T]) Less(i, j int) bool {
 	return sd.backing[sd.at(i)] < sd.backing[sd.at(j)]
-}
-
-func (sd Sortable[T]) Swap(i, j int) {
-	sd.backing[sd.at(i)], sd.backing[sd.at(j)] = sd.backing[sd.at(j)], sd.backing[sd.at(i)]
 }
