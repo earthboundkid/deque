@@ -64,7 +64,7 @@ func (d *Deque[T]) copy(dst []T) {
 	d.backing = dst
 }
 
-func (d *Deque[T]) Shrink() {
+func (d *Deque[T]) Trim() {
 	if d.Cap() == d.Len() {
 		return
 	}
