@@ -4,9 +4,10 @@
 package deque
 
 import (
-	"constraints"
 	"fmt"
 	"strings"
+
+	"golang.org/x/exp/constraints"
 )
 
 // Deque is a double-ended queue. It is not concurrency safe.
