@@ -1,4 +1,4 @@
-# deque
+# deque [![GoDoc](https://godoc.org/github.com/carlmjohnson/deque?status.svg)](https://pkg.go.dev/github.com/carlmjohnson/deque)
 Deque is deque container using Go 1.18+ generics.
 
 [Wikipedia says](https://en.wikipedia.org/wiki/Double-ended_queue):
