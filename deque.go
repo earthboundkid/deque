@@ -128,6 +128,15 @@ func (d *Deque[T]) PushTail(t T) {
 	d.backing[d.tail()] = t
 }
 
+// Append pushes all items to the tail of the deque.
+func (d *Deque[T]) Append(ts ...T) {
+	d.Grow(len(ts))
+	for _, t := range ts {
+		d.len++
+		d.backing[d.tail()] = t
+	}
+}
+
 // PopHead returns and removes the head of the deque, if any.
 func (d *Deque[T]) PopHead() (t T, ok bool) {
 	if d.len < 1 {
