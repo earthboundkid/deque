@@ -36,7 +36,8 @@ func dequeLang(t *testing.T, in string) {
 	q := deque.Make[int](0)
 	qlen := 0
 	mincap := 0
-	for i, c := range in {
+	i := 0
+	for _, c := range in {
 		switch c {
 		case '+':
 			q.PushHead(i)
@@ -71,7 +72,21 @@ func dequeLang(t *testing.T, in string) {
 			if newcap := qlen + n; newcap > mincap {
 				mincap = newcap
 			}
+		case 'A', 'B', 'C', 'D', 'E':
+			n := int(c) - 'A'
+			var s []int
+			for j := 0; j < n; j++ {
+				s = append(s, i)
+				i++
+			}
+			q.Append(s...)
+			qlen += n
+			if mincap < qlen {
+				mincap = qlen
+			}
+
 		}
+		i++
 	}
 	if q.Len() != qlen {
 		t.Errorf("%s bad len %d != %d", in, q.Len(), qlen)
@@ -96,7 +111,15 @@ func dequeLang(t *testing.T, in string) {
 	}
 }
 
-var testcases = []string{"+*/-", "++-", "90", "123456789--", "8++-++-++0", "0"}
+var testcases = []string{
+	"+*/-",
+	"++-",
+	"90",
+	"123456789--",
+	"8++-++-++0",
+	"0",
+	"AB--/CDEF",
+}
 
 func TestDeque(t *testing.T) {
 	for _, tc := range testcases {
