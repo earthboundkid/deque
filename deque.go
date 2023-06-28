@@ -55,7 +55,7 @@ func (d *Deque[T]) Len() int {
 
 // Cap returns the unused capacity of the deque.
 func (d *Deque[T]) Cap() int {
-	return cap(d.backing)
+	return len(d.backing)
 }
 
 // PushHead adds t to the head of the deque.
