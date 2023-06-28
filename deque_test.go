@@ -1,6 +1,7 @@
 package deque_test
 
 import (
+	"container/list"
 	"fmt"
 	"sort"
 	"testing"
@@ -34,30 +35,39 @@ func ExampleDeque() {
 
 func dequeLang(t *testing.T, in string) {
 	q := deque.Make[int](0)
+	l := list.New()
 	qlen := 0
 	mincap := 0
 	i := 0
 	for _, c := range in {
 		switch c {
 		case '+':
+			l.PushFront(i)
 			q.PushHead(i)
 			qlen++
 			if mincap < qlen {
 				mincap++
 			}
 		case '*':
+			l.PushBack(i)
 			q.PushTail(i)
 			qlen++
 			if mincap < qlen {
 				mincap++
 			}
 		case '-':
+			if n := l.Front(); n != nil {
+				l.Remove(n)
+			}
 			q.PopHead()
 			qlen--
 			if qlen < 0 {
 				qlen = 0
 			}
 		case '/':
+			if n := l.Back(); n != nil {
+				l.Remove(n)
+			}
 			q.PopTail()
 			qlen--
 			if qlen < 0 {
@@ -76,6 +86,7 @@ func dequeLang(t *testing.T, in string) {
 			n := int(c) - 'A'
 			var s []int
 			for j := 0; j < n; j++ {
+				l.PushBack(i)
 				s = append(s, i)
 				i++
 			}
@@ -88,11 +99,21 @@ func dequeLang(t *testing.T, in string) {
 		}
 		i++
 	}
+	if llen := l.Len(); q.Len() != llen {
+		t.Errorf("%s bad len %d != %d", in, q.Len(), llen)
+	}
 	if q.Len() != qlen {
 		t.Errorf("%s bad len %d != %d", in, q.Len(), qlen)
 	}
 	if q.Cap() < mincap {
 		t.Errorf("%s: bad cap %d < %d", in, q.Cap(), mincap)
+	}
+
+	for cursor, n := 0, l.Front(); n != nil; n = n.Next() {
+		if v, _ := q.At(cursor); v != n.Value.(int) {
+			t.Errorf("deque.At(%d) == %d; want %d", cursor, v, n.Value)
+		}
+		cursor++
 	}
 	seen := make(map[int]bool)
 	s := q.Slice()
