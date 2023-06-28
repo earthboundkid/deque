@@ -4,10 +4,9 @@
 package deque
 
 import (
+	"cmp"
 	"fmt"
 	"strings"
-
-	"golang.org/x/exp/constraints"
 )
 
 // Deque is a double-ended queue. It is not concurrency safe.
@@ -162,10 +161,7 @@ func (d *Deque[T]) PopTail() (t T, ok bool) {
 }
 
 func (d *Deque[T]) frontback() (front, back []T) {
-	end := d.head + d.len
-	if end > len(d.backing) {
-		end = len(d.backing)
-	}
+	end := min(d.head+d.len, len(d.backing))
 	front = d.backing[d.head:end]
 	rest := d.len - (end - d.head)
 	back = d.backing[:rest]
@@ -203,7 +199,7 @@ func (d Deque[T]) Swap(i, j int) {
 }
 
 // Sortable is a deque that can be sorted with sort.Sort.
-type Sortable[T constraints.Ordered] struct {
+type Sortable[T cmp.Ordered] struct {
 	*Deque[T]
 }
 
