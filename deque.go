@@ -205,5 +205,11 @@ type Sortable[T cmp.Ordered] struct {
 
 // Less implements sort.Interface.
 func (sd Sortable[T]) Less(i, j int) bool {
+	if i > sd.len {
+		panic("i out of bounds")
+	}
+	if j > sd.len {
+		panic("j out of bounds")
+	}
 	return sd.backing[sd.at(i)] < sd.backing[sd.at(j)]
 }
