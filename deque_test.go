@@ -156,3 +156,35 @@ func FuzzDeque(f *testing.F) {
 	}
 	f.Fuzz(dequeLang)
 }
+
+func TestDequeBasics(t *testing.T) {
+	q := deque.Make[int](1)
+	v, ok := q.Head()
+	if v != 0 || ok {
+		t.Errorf("empty deque.Head() got %v %v", v, ok)
+	}
+	v, ok = q.Tail()
+	if v != 0 || ok {
+		t.Errorf("empty deque.Tail() got %v %v", v, ok)
+	}
+
+	v, ok = q.At(0)
+	if v != 0 || ok {
+		t.Errorf("empty deque.Tail() got %v %v", v, ok)
+	}
+
+	q.PushHead(1)
+
+	v, ok = q.Head()
+	if v != 1 || !ok {
+		t.Errorf("deque{1}.Head() got %v %v", v, ok)
+	}
+	v, ok = q.Tail()
+	if v != 1 || !ok {
+		t.Errorf("deque{1}.Tail() got %v %v", v, ok)
+	}
+	v, ok = q.At(0)
+	if v != 1 || !ok {
+		t.Errorf("empty deque.Tail() got %v %v", v, ok)
+	}
+}

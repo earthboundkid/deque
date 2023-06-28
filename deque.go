@@ -87,44 +87,44 @@ func (d *Deque[T]) Clip() {
 
 // Head returns the head of the deque, if any.
 func (d *Deque[T]) Head() (t T, ok bool) {
-	if d.len < 1 {
-		return
+	if p := d.at(0); p != nil {
+		return *p, true
 	}
-	return d.backing[d.head], true
+	return
 }
 
-func (d *Deque[T]) tail() int {
+func (d *Deque[T]) tail() *T {
 	return d.at(d.len - 1)
 }
 
-func (d *Deque[T]) at(n int) int {
-	if d.len < 1 {
-		return -1
+func (d *Deque[T]) at(n int) *T {
+	if n < 0 || n > d.len-1 {
+		return nil
 	}
-	return (d.head + n) % d.Cap()
+	return &d.backing[(d.head+n)%d.Cap()]
 }
 
 // At returns the zero indexed nth item of the deque, if any.
 func (d *Deque[T]) At(n int) (t T, ok bool) {
-	if n < 0 || n > d.len-1 {
-		return
+	if p := d.at(n); p != nil {
+		return *p, true
 	}
-	return d.backing[d.at(n)], true
+	return
 }
 
 // Tail returns the tail of the deque, if any.
 func (d *Deque[T]) Tail() (t T, ok bool) {
-	if d.len < 1 {
-		return
+	if p := d.tail(); p != nil {
+		return *p, true
 	}
-	return d.backing[d.tail()], true
+	return
 }
 
 // PushTail adds t to the tail of the deque.
 func (d *Deque[T]) PushTail(t T) {
 	d.Grow(1)
 	d.len++
-	d.backing[d.tail()] = t
+	*d.tail() = t
 }
 
 // Append pushes all items to the tail of the deque.
@@ -132,7 +132,7 @@ func (d *Deque[T]) Append(ts ...T) {
 	d.Grow(len(ts))
 	for _, t := range ts {
 		d.len++
-		d.backing[d.tail()] = t
+		*d.tail() = t
 	}
 }
 
@@ -195,7 +195,13 @@ func (d *Deque[T]) String() string {
 
 // Swap swaps the elements with indexes i and j.
 func (d *Deque[T]) Swap(i, j int) {
-	d.backing[d.at(i)], d.backing[d.at(j)] = d.backing[d.at(j)], d.backing[d.at(i)]
+	if i > d.len {
+		panic("i out of bounds")
+	}
+	if j > d.len {
+		panic("j out of bounds")
+	}
+	*d.at(i), *d.at(j) = *d.at(j), *d.at(i)
 }
 
 // Sortable is a deque that can be sorted with sort.Sort.
@@ -211,5 +217,5 @@ func (sd Sortable[T]) Less(i, j int) bool {
 	if j > sd.len {
 		panic("j out of bounds")
 	}
-	return sd.backing[sd.at(i)] < sd.backing[sd.at(j)]
+	return *sd.at(i) < *sd.at(j)
 }
