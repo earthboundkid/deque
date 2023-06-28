@@ -194,7 +194,7 @@ func (d *Deque[T]) String() string {
 }
 
 // Swap swaps the elements with indexes i and j.
-func (d Deque[T]) Swap(i, j int) {
+func (d *Deque[T]) Swap(i, j int) {
 	d.backing[d.at(i)], d.backing[d.at(j)] = d.backing[d.at(j)], d.backing[d.at(i)]
 }
 
