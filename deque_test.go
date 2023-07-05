@@ -16,12 +16,12 @@ func ExampleDeque() {
 	sort.Sort(deque.Sortable[int]{d})
 	// Add 5, 4, 3, 2, 1 to the front
 	for i := 5; i > 0; i-- {
-		d.PushHead(i)
+		d.PushFront(i)
 	}
 	fmt.Println(d)
 	// Now pop items off the tail
 	for {
-		n, ok := d.PopTail()
+		n, ok := d.RemoveBack()
 		if !ok {
 			break
 		}
@@ -43,14 +43,14 @@ func dequeLang(t *testing.T, in string) {
 		switch c {
 		case '+':
 			l.PushFront(i)
-			q.PushHead(i)
+			q.PushFront(i)
 			qlen++
 			if mincap < qlen {
 				mincap++
 			}
 		case '*':
 			l.PushBack(i)
-			q.PushTail(i)
+			q.PushBack(i)
 			qlen++
 			if mincap < qlen {
 				mincap++
@@ -59,7 +59,7 @@ func dequeLang(t *testing.T, in string) {
 			if n := l.Front(); n != nil {
 				l.Remove(n)
 			}
-			q.PopHead()
+			q.RemoveFront()
 			qlen--
 			if qlen < 0 {
 				qlen = 0
@@ -68,7 +68,7 @@ func dequeLang(t *testing.T, in string) {
 			if n := l.Back(); n != nil {
 				l.Remove(n)
 			}
-			q.PopTail()
+			q.RemoveBack()
 			qlen--
 			if qlen < 0 {
 				qlen = 0
@@ -90,7 +90,7 @@ func dequeLang(t *testing.T, in string) {
 				s = append(s, i)
 				i++
 			}
-			q.Append(s...)
+			q.PushBackSlice(s)
 			qlen += n
 			if mincap < qlen {
 				mincap = qlen
@@ -159,11 +159,11 @@ func FuzzDeque(f *testing.F) {
 
 func TestDequeBasics(t *testing.T) {
 	q := deque.Make[int](1)
-	v, ok := q.Head()
+	v, ok := q.Front()
 	if v != 0 || ok {
 		t.Errorf("empty deque.Head() got %v %v", v, ok)
 	}
-	v, ok = q.Tail()
+	v, ok = q.Back()
 	if v != 0 || ok {
 		t.Errorf("empty deque.Tail() got %v %v", v, ok)
 	}
@@ -173,13 +173,13 @@ func TestDequeBasics(t *testing.T) {
 		t.Errorf("empty deque.Tail() got %v %v", v, ok)
 	}
 
-	q.PushHead(1)
+	q.PushFront(1)
 
-	v, ok = q.Head()
+	v, ok = q.Front()
 	if v != 1 || !ok {
 		t.Errorf("deque{1}.Head() got %v %v", v, ok)
 	}
-	v, ok = q.Tail()
+	v, ok = q.Back()
 	if v != 1 || !ok {
 		t.Errorf("deque{1}.Tail() got %v %v", v, ok)
 	}

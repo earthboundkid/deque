@@ -17,7 +17,7 @@ sort.Sort(deque.Sortable[int]{d})
 
 // Add 5, 4, 3, 2, 1 to the front
 for i := 5; i > 0; i-- {
-    d.PushHead(i)
+    d.PushFront(i)
 }
 
 // Deque{ len: 9, cap: 16, items: [1, 2, 3, 4, 5, 6, 7, 8, 9]}
@@ -26,7 +26,7 @@ fmt.Println(d)
 // Now pop items off the tail
 // Prints 9 8 7 6 5 4 3 2 1
 for {
-    n, ok := d.PopTail()
+    n, ok := d.RemoveBack()
     if !ok {
         break
     }
