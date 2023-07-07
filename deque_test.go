@@ -3,6 +3,8 @@ package deque_test
 import (
 	"container/list"
 	"fmt"
+	"math/rand"
+	"slices"
 	"sort"
 	"testing"
 
@@ -187,4 +189,82 @@ func TestDequeBasics(t *testing.T) {
 	if v != 1 || !ok {
 		t.Errorf("empty deque.Tail() got %v %v", v, ok)
 	}
+}
+
+func FuzzPropTest(f *testing.F) {
+	f.Add(int64(0))
+	f.Fuzz(func(t *testing.T, n int64) {
+		r := rand.New(rand.NewSource(n))
+		var d1, d2 deque.Deque[int]
+		l := list.New()
+		for {
+			f := r.Float64()
+			switch {
+			case f < .04:
+				s1 := d1.Slice()
+				s2 := d2.Slice()
+				if !slices.Equal(s1, s2) {
+					t.Fatal(s1, s2)
+				}
+				var s3 []int
+				for n := l.Front(); n != nil; n = n.Next() {
+					s3 = append(s3, n.Value.(int))
+				}
+				if !slices.Equal(s1, s3) {
+					t.Fatal(s1, s3)
+				}
+				return
+			case f < .28:
+				n := r.Intn(100)
+				d1.PushFront(n)
+				d2.PushHead(n)
+				l.PushFront(n)
+			case f < .52:
+				n := r.Intn(100)
+				d1.PushBack(n)
+				d2.PushTail(n)
+				l.PushBack(n)
+			case f < .76:
+				v1, ok1 := d1.Front()
+				v2, ok2 := d2.Head()
+				if ok1 != ok2 || v1 != v2 {
+					t.Fatal(d1, d2, v1, v2)
+				}
+				v3, ok3 := d1.RemoveFront()
+				v4, ok4 := d2.PopHead()
+				if ok3 != ok4 || v3 != v4 {
+					t.Fatal(d1, d2, v3, v4, ok3, ok4)
+				}
+				if v1 != v3 {
+					t.Fatal(v1, v3)
+				}
+				if n := l.Front(); n != nil {
+					v5 := l.Remove(n).(int)
+					if v5 != v3 {
+						t.Fatal(d1, l, v3, v5)
+					}
+				}
+			default:
+				v1, ok1 := d1.Back()
+				v2, ok2 := d2.Tail()
+				if ok1 != ok2 || v1 != v2 {
+					t.Fatal(d1, d2, v1, v2)
+				}
+				v3, ok3 := d1.RemoveBack()
+				v4, ok4 := d2.PopTail()
+				if ok3 != ok4 || v3 != v4 {
+					t.Fatal(d1, d2, v3, v4, ok3, ok4)
+				}
+				if v1 != v3 {
+					t.Fatal(v1, v3)
+				}
+				if n := l.Back(); n != nil {
+					v5 := l.Remove(n).(int)
+					if v5 != v3 {
+						t.Fatal(d1, l, v3, v5)
+					}
+				}
+			}
+		}
+	})
 }
