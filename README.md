@@ -1,4 +1,4 @@
-# deque [![GoDoc](https://godoc.org/github.com/carlmjohnson/deque?status.svg)](https://pkg.go.dev/github.com/carlmjohnson/deque) [![Coverage Status](https://coveralls.io/repos/github/carlmjohnson/deque/badge.svg)](https://coveralls.io/github/carlmjohnson/deque)
+# deque [![GoDoc](https://godoc.org/github.com/earthboundkid/deque?status.svg)](https://pkg.go.dev/github.com/earthboundkid/deque) [![Coverage Status](https://coveralls.io/repos/github/earthboundkid/deque/badge.svg)](https://coveralls.io/github/earthboundkid/deque)
 Deque is deque container using Go generics.
 
 [Wikipedia says](https://en.wikipedia.org/wiki/Double-ended_queue):

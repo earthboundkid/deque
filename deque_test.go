@@ -1,14 +1,16 @@
+//go:build goexperiment.rangefunc
+
 package deque_test
 
 import (
 	"container/list"
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"slices"
 	"sort"
 	"testing"
 
-	"github.com/carlmjohnson/deque"
+	"github.com/earthboundkid/deque"
 )
 
 func ExampleDeque() {
@@ -21,12 +23,8 @@ func ExampleDeque() {
 		d.PushFront(i)
 	}
 	fmt.Println(d)
-	// Now pop items off the tail
-	for {
-		n, ok := d.RemoveBack()
-		if !ok {
-			break
-		}
+	// Now reverse loop through items
+	for _, n := range d.Reverse() {
 		fmt.Print(n, " ")
 	}
 	fmt.Println()
@@ -192,20 +190,16 @@ func TestDequeBasics(t *testing.T) {
 }
 
 func FuzzPropTest(f *testing.F) {
-	f.Add(int64(0))
-	f.Fuzz(func(t *testing.T, n int64) {
-		r := rand.New(rand.NewSource(n))
-		var d1, d2 deque.Deque[int]
+	f.Add(uint64(0), uint64(0))
+	f.Fuzz(func(t *testing.T, seed1, seed2 uint64) {
+		r := rand.New(rand.NewPCG(seed1, seed2))
+		var d deque.Deque[int]
 		l := list.New()
 		for {
 			f := r.Float64()
 			switch {
 			case f < .04:
-				s1 := d1.Slice()
-				s2 := d2.Slice()
-				if !slices.Equal(s1, s2) {
-					t.Fatal(s1, s2)
-				}
+				s1 := d.Slice()
 				var s3 []int
 				for n := l.Front(); n != nil; n = n.Next() {
 					s3 = append(s3, n.Value.(int))
@@ -215,53 +209,46 @@ func FuzzPropTest(f *testing.F) {
 				}
 				return
 			case f < .28:
-				n := r.Intn(100)
-				d1.PushFront(n)
-				d2.PushHead(n)
+				n := r.IntN(100)
+				d.PushFront(n)
 				l.PushFront(n)
 			case f < .52:
-				n := r.Intn(100)
-				d1.PushBack(n)
-				d2.PushTail(n)
+				n := r.IntN(100)
+				d.PushBack(n)
 				l.PushBack(n)
 			case f < .76:
-				v1, ok1 := d1.Front()
-				v2, ok2 := d2.Head()
-				if ok1 != ok2 || v1 != v2 {
-					t.Fatal(d1, d2, v1, v2)
+				v1, ok1 := d.Front()
+				v2, ok3 := d.RemoveFront()
+				if v1 != v2 || ok1 != ok3 {
+					t.Fatal(v1, v2)
 				}
-				v3, ok3 := d1.RemoveFront()
-				v4, ok4 := d2.PopHead()
-				if ok3 != ok4 || v3 != v4 {
-					t.Fatal(d1, d2, v3, v4, ok3, ok4)
+				n := l.Front()
+				if ok1 && n == nil || !ok1 && n != nil {
+					t.Fatal(d, l, v2)
 				}
-				if v1 != v3 {
-					t.Fatal(v1, v3)
-				}
-				if n := l.Front(); n != nil {
-					v5 := l.Remove(n).(int)
-					if v5 != v3 {
-						t.Fatal(d1, l, v3, v5)
+				if n != nil {
+					v3 := l.Remove(n).(int)
+					if v3 != v2 {
+						t.Fatal(d, l, v2, v3)
 					}
 				}
 			default:
-				v1, ok1 := d1.Back()
-				v2, ok2 := d2.Tail()
-				if ok1 != ok2 || v1 != v2 {
-					t.Fatal(d1, d2, v1, v2)
+				v1, ok1 := d.Back()
+				v2, ok2 := d.RemoveBack()
+				if v1 != v2 {
+					t.Fatal(v1, v2)
 				}
-				v3, ok3 := d1.RemoveBack()
-				v4, ok4 := d2.PopTail()
-				if ok3 != ok4 || v3 != v4 {
-					t.Fatal(d1, d2, v3, v4, ok3, ok4)
+				if v1 != v2 || ok1 != ok2 {
+					t.Fatal(v1, v2)
 				}
-				if v1 != v3 {
-					t.Fatal(v1, v3)
+				n := l.Back()
+				if ok1 && n == nil || !ok1 && n != nil {
+					t.Fatal(d, l, v2)
 				}
-				if n := l.Back(); n != nil {
-					v5 := l.Remove(n).(int)
-					if v5 != v3 {
-						t.Fatal(d1, l, v3, v5)
+				if n != nil {
+					v3 := l.Remove(n).(int)
+					if v3 != v2 {
+						t.Fatal(d, l, v2, v3)
 					}
 				}
 			}
