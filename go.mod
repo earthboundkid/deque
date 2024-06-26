@@ -1,3 +1,3 @@
-module github.com/carlmjohnson/deque
+module github.com/earthboundkid/deque
 
-go 1.21
+go 1.22

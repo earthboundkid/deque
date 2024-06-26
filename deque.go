@@ -53,16 +53,9 @@ func (d *Deque[T]) Len() int {
 	return d.len
 }
 
-// Cap returns the unused capacity of the deque.
+// Cap returns the total current capacity of the deque.
 func (d *Deque[T]) Cap() int {
 	return len(d.backing)
-}
-
-// PushHead adds t to the head of the deque.
-//
-// Deprecated: Use d.PushFront(t) instead.
-func (d *Deque[T]) PushHead(t T) {
-	d.PushFront(t)
 }
 
 // PushFront adds a new value v to the front of the deque.
@@ -90,13 +83,6 @@ func (d *Deque[T]) Clip() {
 		return
 	}
 	d.copy(make([]T, d.Len()))
-}
-
-// Head returns the head of the deque, if any.
-//
-// Deprecated: Use d.Front() instead.
-func (d *Deque[T]) Head() (t T, ok bool) {
-	return d.Front()
 }
 
 // Front returns the first value of the deque,
@@ -127,13 +113,6 @@ func (d *Deque[T]) At(n int) (t T, ok bool) {
 	return
 }
 
-// Tail returns the tail of the deque, if any.
-//
-// Deprecated: Use d.Back() instead.
-func (d *Deque[T]) Tail() (t T, ok bool) {
-	return d.Back()
-}
-
 // Back returns the last value of the deque,
 // if any.
 func (d *Deque[T]) Back() (t T, ok bool) {
@@ -143,25 +122,11 @@ func (d *Deque[T]) Back() (t T, ok bool) {
 	return
 }
 
-// PushTail adds t to the tail of the deque.
-//
-// Deprecated: Use d.PushBack(t) instead.
-func (d *Deque[T]) PushTail(t T) {
-	d.PushBack(t)
-}
-
 // PushBack adds new value v to the end of the deque.
 func (d *Deque[T]) PushBack(v T) {
 	d.Grow(1)
 	d.len++
 	*d.tail() = v
-}
-
-// Append pushes all items to the tail of the deque.
-//
-// Deprecated: Use d.PushBackSlice(ts) instead.
-func (d *Deque[T]) Append(ts ...T) {
-	d.PushBackSlice(ts)
 }
 
 // PushBackSlice adds all items in s to the back of the deque.
@@ -171,13 +136,6 @@ func (d *Deque[T]) PushBackSlice(s []T) {
 		d.len++
 		*d.tail() = t
 	}
-}
-
-// PopHead returns and removes the head of the deque, if any.
-//
-// Deprecated: Use d.RemoveFront() instead.
-func (d *Deque[T]) PopHead() (t T, ok bool) {
-	return d.RemoveFront()
 }
 
 // RemoveFront removes and returns the front of the deque,
@@ -193,13 +151,6 @@ func (d *Deque[T]) RemoveFront() (t T, ok bool) {
 	}
 	d.len--
 	return head, true
-}
-
-// PopTail returns and removes the tail of the deque, if any.
-//
-// Deprecated: Use d.RemoveBack() instead
-func (d *Deque[T]) PopTail() (t T, ok bool) {
-	return d.RemoveBack()
 }
 
 // RemoveBack removes and returns the back of the deque,
@@ -219,12 +170,6 @@ func (d *Deque[T]) frontback() (front, back []T) {
 	rest := d.len - (end - d.head)
 	back = d.backing[:rest]
 	return
-}
-
-// Slice returns a slice with a copy of the deque.
-func (d *Deque[T]) Slice() []T {
-	front, back := d.frontback()
-	return append(append(([]T)(nil), front...), back...)
 }
 
 // String implements fmt.Stringer.
