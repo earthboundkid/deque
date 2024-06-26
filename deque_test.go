@@ -10,7 +10,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/earthboundkid/deque"
+	"github.com/earthboundkid/deque/v2"
 )
 
 func ExampleDeque() {
