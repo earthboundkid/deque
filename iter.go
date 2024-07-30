@@ -2,7 +2,10 @@
 
 package deque
 
-import "iter"
+import (
+	"iter"
+	"slices"
+)
 
 // Slice returns a slice with a copy of the deque.
 func (d *Deque[T]) Slice() []T {
@@ -35,4 +38,17 @@ func (d *Deque[T]) Reverse() iter.Seq2[int, T] {
 			}
 		}
 	}
+}
+
+// PushBackSeq adds all items in seq to the back of the deque.
+func (d *Deque[T]) PushBackSeq(seq iter.Seq[T]) {
+	for v := range seq {
+		d.PushBack(v)
+	}
+}
+
+// PushBackSlice adds all items in s to the back of the deque.
+func (d *Deque[T]) PushBackSlice(s []T) {
+	d.Grow(len(s))
+	d.PushBackSeq(slices.Values(s))
 }

@@ -129,15 +129,6 @@ func (d *Deque[T]) PushBack(v T) {
 	*d.tail() = v
 }
 
-// PushBackSlice adds all items in s to the back of the deque.
-func (d *Deque[T]) PushBackSlice(s []T) {
-	d.Grow(len(s))
-	for _, t := range s {
-		d.len++
-		*d.tail() = t
-	}
-}
-
 // RemoveFront removes and returns the front of the deque,
 // if any.
 func (d *Deque[T]) RemoveFront() (t T, ok bool) {
