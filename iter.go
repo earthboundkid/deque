@@ -1,4 +1,4 @@
-//go:build goexperiment.rangefunc
+//go:build go1.23
 
 package deque
 
