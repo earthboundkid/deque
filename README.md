@@ -23,13 +23,9 @@ for i := 5; i > 0; i-- {
 // Deque{ len: 9, cap: 16, items: [1, 2, 3, 4, 5, 6, 7, 8, 9]}
 fmt.Println(d)
 
-// Now pop items off the tail
+// Now reverse loop through items
 // Prints 9 8 7 6 5 4 3 2 1
-for {
-    n, ok := d.RemoveBack()
-    if !ok {
-        break
-    }
+for _, n := range d.Reverse() {
     fmt.Print(n, " ")
 }
 fmt.Println()
