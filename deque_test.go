@@ -255,3 +255,24 @@ func FuzzPropTest(f *testing.F) {
 		}
 	})
 }
+
+func TestIter(t *testing.T) {
+	d := deque.Of(1, 2, 3)
+	for i, n := range d.All() {
+		equal(t, 0, i)
+		equal(t, 1, n)
+		break
+	}
+	for i, n := range d.Reverse() {
+		equal(t, 2, i)
+		equal(t, 3, n)
+		break
+	}
+}
+
+func equal[T comparable](tb testing.TB, want, got T) {
+	tb.Helper()
+	if want != got {
+		tb.Fatalf("want %v; got %v", want, got)
+	}
+}
