@@ -11,8 +11,54 @@ import (
 
 // Deque is a double-ended queue. It is not concurrency safe.
 type Deque[T any] struct {
-	len, head int
-	backing   []T
+	// The backing uses its length as the implicit pivot point
+	// to save space in the struct
+	backing []T
+	len     int
+}
+
+func (d *Deque[T]) front() []T {
+	pivot := len(d.backing)
+	end := min(cap(d.backing), pivot+d.len)
+	return d.backing[pivot:end:end]
+}
+
+func (d *Deque[T]) back() []T {
+	pivot := len(d.backing)
+	if cap(d.backing) >= pivot+d.len {
+		return nil
+	}
+	end := pivot + d.len - cap(d.backing)
+	return d.backing[0:end:end]
+}
+
+// Grow increases the deque's capacity, if necessary, to guarantee space for another n elements.
+// After Grow(n), at least n elements can be appended to the deque without another allocation.
+// If n is negative, Grow panics.
+func (d *Deque[T]) Grow(n int) {
+	if n < 0 {
+		panic("argument to Grow must be positive")
+	}
+	if d.Cap()-d.len >= n {
+		return
+	}
+	// using append to get amortized growth
+	grown := append(d.backing[:cap(d.backing)], make([]T, n)...)
+	// Now actually putting items in correct order
+	grown = append(grown[:0], d.front()...)
+	grown = append(grown, d.back()...)
+	d.backing = grown[:0]
+}
+
+func (d *Deque[T]) shiftPivot(delta int) {
+	oldPivot := len(d.backing)
+	newPivot := oldPivot + delta
+	if newPivot > cap(d.backing) {
+		newPivot -= cap(d.backing)
+	} else if newPivot < 0 {
+		newPivot += cap(d.backing)
+	}
+	d.backing = d.backing[0:newPivot]
 }
 
 // Make creates a deque with a prereserved capacity.
@@ -32,22 +78,6 @@ func Of[T any](items ...T) *Deque[T] {
 	return &d
 }
 
-// Grow increases the deque's capacity, if necessary, to guarantee space for another n elements.
-// After Grow(n), at least n elements can be appended to the deque without another allocation.
-// If n is negative, Grow panics.
-func (d *Deque[T]) Grow(n int) {
-	if n < 0 {
-		panic("argument to Grow must be positive")
-	}
-	if d.Cap()-d.len >= n {
-		return
-	}
-	// using append to get amortized growth
-	grown := append(d.backing, make([]T, n)...)
-	grown = grown[:cap(grown)]
-	d.copy(grown)
-}
-
 // Len returns the current length of the deque.
 func (d *Deque[T]) Len() int {
 	return d.len
@@ -55,26 +85,15 @@ func (d *Deque[T]) Len() int {
 
 // Cap returns the total current capacity of the deque.
 func (d *Deque[T]) Cap() int {
-	return len(d.backing)
+	return cap(d.backing)
 }
 
 // PushFront adds a new value v to the front of the deque.
 func (d *Deque[T]) PushFront(v T) {
 	d.Grow(1)
 	d.len++
-	d.head--
-	if d.head < 0 {
-		d.head = d.Cap() - 1
-	}
-	d.backing[d.head] = v
-}
-
-func (d *Deque[T]) copy(dst []T) {
-	front, back := d.frontback()
-	n := copy(dst, front)
-	copy(dst[n:], back)
-	d.head = 0
-	d.backing = dst
+	d.shiftPivot(-1)
+	d.backing[:cap(d.backing)][len(d.backing)] = v
 }
 
 // Clip removes unused capacity from the deque.
@@ -82,7 +101,10 @@ func (d *Deque[T]) Clip() {
 	if d.Cap() == d.Len() {
 		return
 	}
-	d.copy(make([]T, d.Len()))
+	d2 := Make[T](d.Len())
+	d2.PushBackSlice(d.front())
+	d2.PushBackSlice(d.back())
+	*d = *d2
 }
 
 // Front returns the first value of the deque,
@@ -99,10 +121,10 @@ func (d *Deque[T]) tail() *T {
 }
 
 func (d *Deque[T]) at(n int) *T {
-	if n < 0 || n > d.len-1 {
+	if n < 0 || n >= d.len {
 		return nil
 	}
-	return &d.backing[(d.head+n)%d.Cap()]
+	return &d.backing[:cap(d.backing)][(len(d.backing)+n)%cap(d.backing)]
 }
 
 // At returns the zero indexed nth item of the deque, if any.
@@ -136,10 +158,7 @@ func (d *Deque[T]) RemoveFront() (t T, ok bool) {
 		return
 	}
 	head, _ := d.Front()
-	d.head++
-	if d.head >= d.Cap() {
-		d.head = 0
-	}
+	d.shiftPivot(+1)
 	d.len--
 	return head, true
 }
@@ -155,20 +174,12 @@ func (d *Deque[T]) RemoveBack() (t T, ok bool) {
 	return tail, true
 }
 
-func (d *Deque[T]) frontback() (front, back []T) {
-	end := min(d.head+d.len, len(d.backing))
-	front = d.backing[d.head:end]
-	rest := d.len - (end - d.head)
-	back = d.backing[:rest]
-	return
-}
-
 // String implements fmt.Stringer.
 func (d *Deque[T]) String() string {
 	var buf strings.Builder
 	fmt.Fprintf(&buf, "Deque{ len: %d, cap: %d, items: [", d.Len(), d.Cap())
 	i := 0
-	front, back := d.frontback()
+	front, back := d.front(), d.back()
 	for _, slice := range [][]T{front, back} {
 		for _, item := range slice {
 			if i > 0 {
